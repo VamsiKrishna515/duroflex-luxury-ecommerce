@@ -2,19 +2,14 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function IntroScreen({ onComplete }) {
-  const [stage, setStage] = useState(0); // 0: logo, 1: bg transition, 2: complete
+  const [stage, setStage] = useState(0); // 0: logo reveal, 1: video ambient expansion, 2: complete
 
   useEffect(() => {
-    // Stage 0 -> Stage 1 after 1000ms
-    const t1 = setTimeout(() => {
-      setStage(1);
-    }, 1000);
-
-    // Stage 1 -> Complete after 2200ms
+    const t1 = setTimeout(() => setStage(1), 1200);
     const t2 = setTimeout(() => {
       setStage(2);
       onComplete?.();
-    }, 2400);
+    }, 3200);
 
     return () => {
       clearTimeout(t1);
@@ -28,51 +23,69 @@ export function IntroScreen({ onComplete }) {
         <motion.div
           key="intro-screen"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }}
+          exit={{ opacity: 0, transition: { duration: 1.0, ease: [0.16, 1, 0.3, 1] } }}
           onClick={() => {
             setStage(2);
             onComplete?.();
           }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#FBF9F5] overflow-hidden cursor-pointer selection:bg-transparent"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0D0C0C] overflow-hidden cursor-pointer selection:bg-transparent"
         >
-          {/* Background image transition */}
+          {/* HD Architectural Ambient Video Loop */}
           <motion.div
-            initial={{ opacity: 0, scale: 1.05 }}
+            initial={{ opacity: 0, scale: 1.1 }}
             animate={{
-              opacity: stage >= 1 ? 0.35 : 0,
-              scale: stage >= 1 ? 1.0 : 1.05
+              opacity: stage >= 1 ? 0.6 : 0.2,
+              scale: stage >= 1 ? 1.0 : 1.1
             }}
-            transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=2000&q=85')`
-            }}
-          />
-
-          {/* Centered Logo & Subtitle */}
-          <div className="relative z-10 text-center px-6">
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: stage === 0 ? 1 : 0.8, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ duration: 2.0, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute inset-0 overflow-hidden"
+          >
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover filter brightness-75 contrast-110"
             >
-              <h1 className="font-serif-luxury text-5xl md:text-7xl lg:text-8xl tracking-[0.2em] text-[#121212] uppercase font-light">
-                Duroflex
+              <source
+                src="https://assets.mixkit.co/videos/preview/mixkit-interior-of-a-modern-living-room-41544-large.mp4"
+                type="video/mp4"
+              />
+            </video>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0D0C0C] via-black/40 to-[#0D0C0C]" />
+          </motion.div>
+
+          {/* Centered Film Title & Gold Line Reveal */}
+          <div className="relative z-10 text-center px-6 max-w-xl">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] text-[#C2A684] font-mono font-medium block mb-3">
+                Cinematic Brand Film
+              </span>
+              <h1 className="font-serif-luxury text-5xl sm:text-7xl md:text-8xl tracking-[0.25em] text-white uppercase font-light drop-shadow-2xl">
+                DUROFLEX
               </h1>
+
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ duration: 1, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="w-24 h-[1px] bg-[#C2A684] mx-auto my-4"
+                transition={{ duration: 1.2, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="w-32 h-[1px] bg-gradient-to-r from-transparent via-[#C2A684] to-transparent mx-auto my-6"
               />
-              <p className="text-xs md:text-sm tracking-[0.35em] text-[#666059] uppercase font-medium">
-                Luxury Architectural Comfort
+
+              <p className="text-xs md:text-sm tracking-[0.35em] text-white/80 uppercase font-light">
+                Architectural Sleep & Living
               </p>
             </motion.div>
           </div>
 
-          <div className="absolute bottom-8 text-[10px] tracking-[0.2em] text-[#888] uppercase">
-            Click to Skip Intro
+          {/* Bottom Skip Indicator */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center space-x-3 text-[10px] tracking-[0.3em] text-white/40 uppercase">
+            <span className="w-2 h-2 rounded-full bg-[#C2A684] animate-ping" />
+            <span>Click Anywhere to Skip Intro</span>
           </div>
         </motion.div>
       )}
