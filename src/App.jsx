@@ -15,18 +15,22 @@ import { LifestyleGallery } from "./components/LifestyleGallery";
 import { Testimonials } from "./components/Testimonials";
 import { MattressFinder } from "./components/MattressFinder";
 import { StoreLocator } from "./components/StoreLocator";
+import { FAQSection } from "./components/FAQSection";
 import { NighttimeHero } from "./components/NighttimeHero";
 import { Footer } from "./components/Footer";
 import { CartDrawer } from "./components/CartDrawer";
 import { WishlistDrawer } from "./components/WishlistDrawer";
 import { SearchModal } from "./components/SearchModal";
 import { ProductDetailModal } from "./components/ProductDetailModal";
+import { CheckoutModal } from "./components/CheckoutModal";
+import { CompareModal } from "./components/CompareModal";
+import { HeaderProgressBar } from "./components/HeaderProgressBar";
 import { CustomCursor } from "./components/CustomCursor";
 import { Toast } from "./components/Toast";
 import { PRODUCTS } from "./data/products";
+import { SlidersHorizontal } from "lucide-react";
 
 export default function App() {
-  const [introFinished, setIntroFinished] = useState(false);
   const [cartItems, setCartItems] = useState([
     {
       ...PRODUCTS[0],
@@ -38,6 +42,8 @@ export default function App() {
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [selectedQuickView, setSelectedQuickView] = useState(null);
   const [toastMessage, setToastMessage] = useState("");
 
@@ -46,7 +52,6 @@ export default function App() {
     setTimeout(() => setToastMessage(""), 3500);
   };
 
-  // Cart operations
   const handleAddToCart = (productWithDetails) => {
     setCartItems((prev) => {
       const size = productWithDetails.selectedSize || productWithDetails.sizes?.[0] || "Standard";
@@ -94,7 +99,6 @@ export default function App() {
     showToast("Item removed from bag.");
   };
 
-  // Wishlist operations
   const handleToggleWishlist = (product) => {
     setWishlistIds((prev) => {
       if (prev.includes(product.id)) {
@@ -107,7 +111,6 @@ export default function App() {
     });
   };
 
-  // Smooth Navigation Anchor Scrolling
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -115,13 +118,18 @@ export default function App() {
     }
   };
 
+  const cartTotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
   return (
     <div className="relative min-h-screen bg-[#FBF9F5] text-[#121212] font-sans selection:bg-[#C2A684] selection:text-white">
+      {/* Scroll Progress Bar */}
+      <HeaderProgressBar />
+
       {/* Desktop Custom Cursor */}
       <CustomCursor />
 
       {/* 1. Cinematic Intro Screen */}
-      <IntroScreen onComplete={() => setIntroFinished(true)} />
+      <IntroScreen />
 
       {/* 2. Glassmorphic Navigation Bar */}
       <Navbar
@@ -132,6 +140,15 @@ export default function App() {
         onOpenSearch={() => setSearchOpen(true)}
         onNavigateSection={scrollToSection}
       />
+
+      {/* Floating Action Button: Compare Mattresses */}
+      <button
+        onClick={() => setCompareOpen(true)}
+        className="fixed bottom-6 left-6 z-40 px-4 py-3 bg-[#121212] hover:bg-[#C2A684] text-white text-xs uppercase tracking-widest font-medium rounded-full shadow-2xl transition-all border border-white/20 hidden md:flex items-center space-x-2"
+      >
+        <SlidersHorizontal className="w-4 h-4 text-[#C2A684]" />
+        <span>Compare Specs</span>
+      </button>
 
       {/* Main Page Layout Scenes */}
       <main>
@@ -194,14 +211,17 @@ export default function App() {
         {/* 19. Store Locator & Interactive Map */}
         <StoreLocator />
 
-        {/* 20. Serene Nighttime Final Hero */}
+        {/* 20. Client Concierge FAQ Accordion */}
+        <FAQSection />
+
+        {/* 21. Serene Nighttime Final Hero */}
         <NighttimeHero onExplore={() => scrollToSection("mattresses")} />
       </main>
 
-      {/* 21. Multi-Column Dark Footer */}
+      {/* 22. Multi-Column Dark Footer */}
       <Footer onNavigateSection={scrollToSection} onShowToast={showToast} />
 
-      {/* Slide-over Drawers & Overlay Modals */}
+      {/* Drawers & Modals */}
       <CartDrawer
         isOpen={cartOpen}
         onClose={() => setCartOpen(false)}
@@ -209,8 +229,8 @@ export default function App() {
         onUpdateQuantity={handleUpdateQuantity}
         onRemoveItem={handleRemoveCartItem}
         onCheckoutSuccess={() => {
-          setCartItems([]);
-          showToast("Thank you for your order! Order #DF-2026-9812 has been placed.");
+          setCartOpen(false);
+          setCheckoutOpen(true);
         }}
       />
 
@@ -236,6 +256,23 @@ export default function App() {
         onAddToCart={handleAddToCart}
         onToggleWishlist={handleToggleWishlist}
         isWishlisted={selectedQuickView ? wishlistIds.includes(selectedQuickView.id) : false}
+      />
+
+      <CheckoutModal
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        cartItems={cartItems}
+        totalAmount={cartTotal}
+        onOrderComplete={() => {
+          setCartItems([]);
+          showToast("Order verified & placed successfully! Receipt generated.");
+        }}
+      />
+
+      <CompareModal
+        isOpen={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        onAddToCart={handleAddToCart}
       />
 
       {/* Notification Toast */}
