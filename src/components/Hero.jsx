@@ -1,138 +1,147 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Play, Volume2, VolumeX, Sparkles, X } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronDown, Volume2, VolumeX } from 'lucide-react';
 
 export function Hero({ onExplore, onOpenFinder }) {
-  const [isPlayingVideo, setIsPlayingVideo] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
+  const [muted, setMuted] = useState(true);
+  const [showMuteButton, setShowMuteButton] = useState(false);
+  const [activeSection, setActiveSection] = useState('Mattresses');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowMuteButton(true), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const sections = ['Mattresses', 'Beds', 'Sofas', 'Bedding', 'Technology'];
+
+  const textVariants = {
+    hidden: { y: 40, opacity: 0 },
+    visible: (i) => ({
+      y: 0,
+      opacity: 1,
+      transition: {
+        delay: i * 0.13,
+        duration: 0.8,
+        ease: [0.33, 1, 0.68, 1]
+      }
+    })
+  };
 
   return (
-    <section className="relative w-full h-screen overflow-hidden flex items-end pb-20 md:pb-28 bg-[#0D0C0C]">
-      {/* Background HD Ambient Video Reel */}
-      <div className="absolute inset-0 overflow-hidden">
-        <video
-          autoPlay
-          loop
-          muted={isMuted}
-          playsInline
-          className="w-full h-full object-cover filter brightness-85 contrast-105 scale-105"
-        >
-          <source
-            src="https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-with-designer-furniture-41547-large.mp4"
-            type="video/mp4"
-          />
-        </video>
-        {/* Cinematic Gradient Tint Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0D0C0C] via-black/40 to-black/30" />
-      </div>
-
-      {/* Sound Mute / Unmute Toggle Button */}
-      <button
-        onClick={() => setIsMuted(!isMuted)}
-        className="absolute top-28 right-8 z-30 p-3 bg-black/40 backdrop-blur-md border border-white/20 rounded-full text-white/80 hover:text-white hover:border-[#C2A684] transition-all"
-        title={isMuted ? "Unmute Ambient Sound" : "Mute Sound"}
+    <section className="relative w-full h-[100svh] overflow-hidden bg-black">
+      {/* Background Video with slow zoom */}
+      <motion.div 
+        className="absolute inset-0 w-full h-full origin-center"
+        initial={{ scale: 1.0 }}
+        animate={{ scale: 1.08 }}
+        transition={{ duration: 15, ease: "linear", repeat: Infinity, repeatType: "reverse" }}
       >
-        {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#C2A684]" />}
-      </button>
+        <video
+          src="https://assets.mixkit.co/videos/preview/mixkit-modern-apartment-with-designer-furniture-41547-large.mp4"
+          autoPlay
+          muted={muted}
+          loop
+          playsInline
+          className="w-full h-full object-cover"
+        />
+      </motion.div>
 
-      {/* Hero Content Overlay */}
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-12 w-full text-white">
-        <div className="max-w-3xl">
-          {/* 1. Small Architectural Tag */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex items-center space-x-2 mb-4"
+      {/* Cinematic gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent pointer-events-none" />
+
+      {/* Top right mute button */}
+      {showMuteButton && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onClick={() => setMuted(!muted)}
+          className="absolute top-24 right-6 z-20 w-10 h-10 rounded-full bg-black/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white hover:bg-black/40 transition-colors"
+        >
+          {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </motion.button>
+      )}
+
+      {/* Content */}
+      <div className="absolute inset-0 max-w-7xl mx-auto px-6 flex flex-col justify-end pb-24 md:pb-32 z-10">
+        <motion.div
+          custom={0}
+          initial="hidden"
+          animate="visible"
+          variants={textVariants}
+          className="text-[#D4AF37] text-xs font-semibold tracking-[0.3em] uppercase mb-4"
+        >
+          PREMIUM SLEEP · ARCHITECTURAL COMFORT
+        </motion.div>
+
+        <motion.h1
+          custom={1}
+          initial="hidden"
+          animate="visible"
+          variants={textVariants}
+          className="font-serif text-5xl md:text-7xl lg:text-8xl text-white leading-[1.1] mb-6 max-w-3xl"
+        >
+          THE ART OF<br/>BETTER SLEEP
+        </motion.h1>
+
+        <motion.p
+          custom={2}
+          initial="hidden"
+          animate="visible"
+          variants={textVariants}
+          className="text-white/80 text-lg md:text-xl max-w-lg mb-10 font-light"
+        >
+          Engineered comfort. Sculpted for your nights.
+        </motion.p>
+
+        <motion.div
+          custom={3}
+          initial="hidden"
+          animate="visible"
+          variants={textVariants}
+          className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+        >
+          <button 
+            onClick={onExplore}
+            className="px-8 py-4 bg-[#D4AF37] text-white text-sm tracking-widest uppercase hover:bg-[#b8952c] transition-colors w-full sm:w-auto text-center"
           >
-            <Sparkles className="w-4 h-4 text-[#C2A684]" />
-            <span className="text-xs uppercase tracking-[0.35em] font-medium text-[#C2A684]">
-              Living Lines — Architectural Sanctuary
-            </span>
-          </motion.div>
-
-          {/* 2. Main Heading */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="font-serif-luxury text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-tight leading-[1.05] mb-6"
+            Explore Mattresses
+          </button>
+          <button 
+            onClick={onOpenFinder}
+            className="px-8 py-4 border border-white/60 text-white text-sm tracking-widest uppercase hover:border-white hover:bg-white hover:text-black transition-colors w-full sm:w-auto text-center"
           >
-            SLEEP BETTER. <br />
-            <span className="italic font-normal text-[#E6D5C3]">LIVE BETTER.</span>
-          </motion.h1>
-
-          {/* 3. Description */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5 }}
-            className="text-base md:text-lg text-white/85 font-light tracking-wide leading-relaxed max-w-xl mb-8"
-          >
-            Thoughtfully designed orthopaedic sleep technology and handcrafted furniture inspired by luxury interior architecture.
-          </motion.p>
-
-          {/* 4. Action CTAs */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.65 }}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-4 sm:space-y-0 sm:space-x-5"
-          >
-            <button
-              onClick={onExplore}
-              className="group px-8 py-4 bg-[#C2A684] hover:bg-[#a88a68] text-white text-xs uppercase tracking-[0.25em] font-medium transition-all duration-300 flex items-center justify-center space-x-3 shadow-xl"
-            >
-              <span>Explore Collection</span>
-              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform" />
-            </button>
-
-            <button
-              onClick={() => setIsPlayingVideo(true)}
-              className="px-6 py-4 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs uppercase tracking-[0.25em] font-medium transition-all flex items-center justify-center space-x-2"
-            >
-              <Play className="w-3.5 h-3.5 fill-white" />
-              <span>Watch Film Reel</span>
-            </button>
-
-            <button
-              onClick={onOpenFinder}
-              className="px-6 py-4 border border-white/30 hover:border-white text-white hover:bg-white/10 text-xs uppercase tracking-[0.25em] font-medium transition-all text-center"
-            >
-              Sleep Quiz
-            </button>
-          </motion.div>
-        </div>
+            Find Your Comfort
+          </button>
+        </motion.div>
       </div>
 
-      {/* Full-Screen Brand Film Video Modal */}
-      <AnimatePresence>
-        {isPlayingVideo && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 md:p-12"
+      {/* Right side category nav (desktop) */}
+      <div className="hidden lg:flex absolute right-8 top-1/2 -translate-y-1/2 flex-col gap-6 z-20">
+        {sections.map((section) => (
+          <div 
+            key={section} 
+            className="group flex items-center justify-end gap-3 cursor-pointer"
+            onClick={() => setActiveSection(section)}
           >
-            <button
-              onClick={() => setIsPlayingVideo(false)}
-              className="absolute top-6 right-6 p-3 text-white/70 hover:text-white"
-            >
-              <X className="w-8 h-8" />
-            </button>
+            <span className={`text-[10px] tracking-widest uppercase transition-opacity duration-300 ${activeSection === section ? 'opacity-100 text-white' : 'opacity-0 text-white/50 group-hover:opacity-100'}`}>
+              {section}
+            </span>
+            <div className={`w-2 h-2 rounded-full transition-colors duration-300 ${activeSection === section ? 'bg-[#D4AF37]' : 'bg-white/20 group-hover:bg-white/60'}`} />
+          </div>
+        ))}
+      </div>
 
-            <div className="w-full max-w-5xl aspect-video rounded-xs overflow-hidden shadow-2xl border border-white/20 relative">
-              <iframe
-                src="https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title="Duroflex Architectural Film"
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Bottom center scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20 pointer-events-none">
+        <span className="text-white/50 text-[10px] tracking-widest uppercase">Scroll to explore</span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="text-white/70"
+        >
+          <ChevronDown size={20} strokeWidth={1.5} />
+        </motion.div>
+      </div>
     </section>
   );
 }

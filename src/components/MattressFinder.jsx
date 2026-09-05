@@ -1,42 +1,65 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, CheckCircle2, RotateCcw, ShoppingBag } from "lucide-react";
-import { PRODUCTS } from "../data/products";
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PRODUCTS } from '../data/products';
 
 const QUESTIONS = [
   {
-    id: "position",
-    question: "What is your primary sleeping position?",
+    id: 1,
+    title: 'Who is this mattress for?',
     options: [
-      { label: "Back Sleeper", desc: "Requires lumbar support & 5-zone spinal alignment" },
-      { label: "Side Sleeper", desc: "Needs shoulder & hip pressure-point cushioning" },
-      { label: "Stomach Sleeper", desc: "Requires firm core alignment to prevent back sag" },
-      { label: "Combination Sleeper", desc: "Needs responsive motion adaptability" }
+      { label: 'Just Me', desc: 'Single sleeper', icon: '👤' },
+      { label: 'My Partner & I', desc: 'Couples sharing a bed', icon: '👥' },
+      { label: 'The Guest Room', desc: 'Occasional visitors', icon: '🛏️' },
+      { label: 'My Child', desc: 'Growing bodies', icon: '🧸' }
     ]
   },
   {
-    id: "firmness",
-    question: "What feel do you prefer when resting?",
+    id: 2,
+    title: 'How do you prefer to sleep?',
     options: [
-      { label: "Soft Plush", desc: "Cloud-like sink-in feeling with deep contouring" },
-      { label: "Medium Firm", desc: "Balanced support with gentle surface cushioning" },
-      { label: "Extra Firm", desc: "Maximum spinal rigidity & doctor-recommended support" }
+      { label: 'Back', desc: 'Looking up', icon: '⬆️' },
+      { label: 'Side', desc: 'Curled up', icon: '⬅️' },
+      { label: 'Stomach', desc: 'Face down', icon: '⬇️' },
+      { label: 'I Switch Constantly', desc: 'All over the place', icon: '🔄' }
     ]
   },
   {
-    id: "temperature",
-    question: "How do you feel temperature-wise at night?",
+    id: 3,
+    title: 'What comfort feel do you prefer?',
     options: [
-      { label: "I Sleep Hot", desc: "Need active CoolGel™ thermoregulation mesh" },
-      { label: "Neutral / Cozy", desc: "Standard breathable cotton & latex airflow" }
+      { label: 'Plush Cloud', desc: 'Soft and enveloping', icon: '☁️' },
+      { label: 'Medium Balanced', desc: 'Not too hard, not too soft', icon: '⚖️' },
+      { label: 'Firm Supportive', desc: 'Solid feel', icon: '🧱' },
+      { label: 'Extra Firm', desc: 'Maximum support', icon: '⬛' }
     ]
   },
   {
-    id: "orthopaedic",
-    question: "Do you experience chronic back or neck stiffness?",
+    id: 4,
+    title: 'Do you sleep hot?',
     options: [
-      { label: "Yes, Need Doctor Recommended Ortho", desc: "Duropedic 5-zone spinal alignment" },
-      { label: "No, General Premium Comfort", desc: "Standard luxury posture support" }
+      { label: 'I sleep very hot', desc: 'Need active cooling', icon: '🔥' },
+      { label: 'Slightly warm', desc: 'Breathable is good', icon: '🌡️' },
+      { label: 'I sleep cool', desc: 'Cozy is fine', icon: '❄️' },
+      { label: 'I don\'t know', desc: 'No strong preference', icon: '🤷' }
+    ]
+  },
+  {
+    id: 5,
+    title: 'Do you have back or joint concerns?',
+    options: [
+      { label: 'Yes, doctor recommended ortho', desc: 'Strict orthopedic support', icon: '⚕️' },
+      { label: 'Occasional discomfort', desc: 'Need pressure relief', icon: '🩹' },
+      { label: 'No concerns', desc: 'Healthy and active', icon: '💪' }
+    ]
+  },
+  {
+    id: 6,
+    title: 'What is your budget?',
+    options: [
+      { label: 'Under ₹20,000', desc: 'Value first', icon: '💰' },
+      { label: '₹20,000–₹40,000', desc: 'Great quality, fair price', icon: '💵' },
+      { label: '₹40,000–₹80,000', desc: 'Luxury comfort', icon: '💎' },
+      { label: 'Premium (₹80,000+)', desc: 'The absolute best', icon: '👑' }
     ]
   }
 ];
@@ -44,192 +67,185 @@ const QUESTIONS = [
 export function MattressFinder({ onAddToCart, onQuickView }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [direction, setDirection] = useState(1);
 
-  const handleSelectOption = (questionId, optionLabel) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: optionLabel }));
-    if (currentStep < QUESTIONS.length) {
+  const handleOptionClick = (optionLabel) => {
+    setAnswers({ ...answers, [currentStep]: optionLabel });
+    setDirection(1);
+    setTimeout(() => {
       setCurrentStep((prev) => prev + 1);
-    }
+    }, 300);
   };
 
-  const handleReset = () => {
+  const handleBack = () => {
+    setDirection(-1);
+    setCurrentStep((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleRetake = () => {
+    setDirection(-1);
     setCurrentStep(0);
     setAnswers({});
   };
 
-  // Determine recommended mattress based on answers
-  const recommendedMattress =
-    answers.orthopaedic?.includes("Yes") || answers.position === "Back Sleeper"
-      ? PRODUCTS[0] // Duropedic Wave Plus
-      : answers.firmness === "Soft Plush" || answers.position === "Side Sleeper"
-      ? PRODUCTS[1] // Balance Latex
-      : PRODUCTS[2]; // Energise Spring
+  const slideVariants = {
+    enter: (dir) => ({
+      x: dir > 0 ? '100%' : '-100%',
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (dir) => ({
+      x: dir < 0 ? '100%' : '-100%',
+      opacity: 0,
+    }),
+  };
+
+  // Mock recommendation logic using imported PRODUCTS
+  const recommendations = PRODUCTS && PRODUCTS.length >= 2 ? PRODUCTS.slice(0, 2) : [
+    {
+      id: 'r1',
+      name: 'Duropedic Luxury',
+      image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&q=80',
+      price: 45000,
+      firmness: 'Firm Supportive',
+      matchReason: 'Matches your need for orthopedic back support and side sleeping.'
+    },
+    {
+      id: 'r2',
+      name: 'Naturals Latex',
+      image: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&q=80',
+      price: 65000,
+      firmness: 'Medium Balanced',
+      matchReason: 'Perfect for couples needing balanced cooling and comfort.'
+    }
+  ];
 
   return (
-    <section id="finder" className="py-28 md:py-40 px-6 md:px-12 bg-[#121110] text-white border-b border-white/10 overflow-hidden">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
+    <section className="relative min-h-[90vh] bg-[#1C1917] text-white flex flex-col justify-center py-20 px-4 sm:px-8 md:px-16 overflow-hidden">
+      {/* Subtle Grain Overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noiseFilter\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noiseFilter)\'/%3E%3C/svg%3E")' }}
+      ></div>
+
+      <div className="relative z-10 max-w-6xl mx-auto w-full">
         <div className="text-center mb-12">
-          <span className="text-xs uppercase tracking-[0.3em] text-[#C2A684] font-semibold mb-3 block">
-            Interactive Sleep Algorithm
-          </span>
-          <h2 className="font-serif-luxury text-4xl sm:text-5xl md:text-6xl uppercase tracking-tight text-white">
-            WHAT DOES YOUR PERFECT SLEEP FEEL LIKE?
-          </h2>
+          <h2 className="text-3xl md:text-5xl font-serif text-[#C2A684] mb-4">WHAT DOES YOUR PERFECT SLEEP FEEL LIKE?</h2>
+          <p className="text-stone-400 font-light tracking-wide uppercase text-sm">Concierge Sleep Assessment</p>
         </div>
 
-        {/* Step Indicator */}
-        <div className="flex items-center justify-center space-x-3 mb-12 text-xs font-mono tracking-widest text-white/50">
-          {[0, 1, 2, 3, 4].map((stepIdx) => {
-            const isCurrent = stepIdx === currentStep;
-            const isDone = stepIdx < currentStep;
-            return (
-              <React.Fragment key={stepIdx}>
-                <span
-                  className={`px-3 py-1 rounded-full transition-all ${
-                    isCurrent
-                      ? "bg-[#C2A684] text-white font-bold"
-                      : isDone
-                      ? "text-[#C2A684]"
-                      : "text-white/30"
-                  }`}
-                >
-                  {stepIdx === 4 ? "RESULT" : `0${stepIdx + 1}`}
-                </span>
-                {stepIdx < 4 && <span>→</span>}
-              </React.Fragment>
-            );
-          })}
+        {/* Progress Indicator */}
+        <div className="flex justify-center items-center space-x-2 md:space-x-4 mb-16">
+          {QUESTIONS.map((q, idx) => (
+            <div key={q.id} className="flex items-center">
+              <div 
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-colors duration-300 ${
+                  currentStep > idx ? 'bg-[#C2A684] text-[#1C1917]' : currentStep === idx ? 'border border-[#C2A684] text-[#C2A684]' : 'text-stone-600'
+                }`}
+              >
+                0{q.id}
+              </div>
+              {idx < QUESTIONS.length - 1 && (
+                <div className={`w-4 md:w-12 h-px mx-2 transition-colors duration-300 ${currentStep > idx ? 'bg-[#C2A684]' : 'bg-stone-800'}`}></div>
+              )}
+            </div>
+          ))}
+          <div className="flex items-center ml-2">
+            <div className={`w-4 md:w-12 h-px mx-2 transition-colors duration-300 ${currentStep >= QUESTIONS.length ? 'bg-[#C2A684]' : 'bg-stone-800'}`}></div>
+            <span className={`text-xs font-medium tracking-wider transition-colors duration-300 ${currentStep >= QUESTIONS.length ? 'text-[#C2A684]' : 'text-stone-600'}`}>RESULT</span>
+          </div>
         </div>
 
-        {/* Question Step Container */}
-        <div className="bg-[#1A1918] p-8 md:p-12 rounded-xs border border-white/10 shadow-2xl min-h-[380px] flex flex-col justify-between">
-          <AnimatePresence mode="wait">
+        <div className="relative min-h-[400px]">
+          <AnimatePresence initial={false} custom={direction} mode="wait">
             {currentStep < QUESTIONS.length ? (
               <motion.div
                 key={currentStep}
-                initial={{ opacity: 0, x: 40 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -40 }}
-                transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col justify-between h-full"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ x: { type: "spring", stiffness: 300, damping: 30 }, opacity: { duration: 0.2 } }}
+                className="w-full absolute inset-0 flex flex-col items-center"
               >
-                <div>
-                  <span className="text-xs font-mono uppercase tracking-widest text-[#C2A684] mb-2 block">
-                    Question 0{currentStep + 1} of 04
-                  </span>
-                  <h3 className="font-serif-luxury text-2xl sm:text-3xl text-white font-light mb-8">
-                    {QUESTIONS[currentStep].question}
-                  </h3>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {QUESTIONS[currentStep].options.map((opt) => (
+                <div className="w-full max-w-4xl">
+                  <div className="flex justify-between items-center mb-8">
+                    {currentStep > 0 ? (
+                      <button onClick={handleBack} className="text-stone-400 hover:text-[#C2A684] transition-colors flex items-center space-x-2 text-sm uppercase tracking-wider">
+                        <span>← Back</span>
+                      </button>
+                    ) : <div></div>}
+                    <span className="text-stone-500 text-sm">Step {currentStep + 1} of {QUESTIONS.length}</span>
+                  </div>
+                  
+                  <h3 className="text-2xl md:text-4xl font-serif text-white mb-10 text-center">{QUESTIONS[currentStep].title}</h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    {QUESTIONS[currentStep].options.map((option) => (
                       <button
-                        key={opt.label}
-                        onClick={() =>
-                          handleSelectOption(QUESTIONS[currentStep].id, opt.label)
-                        }
-                        className="text-left p-5 border border-white/10 hover:border-[#C2A684] bg-white/5 hover:bg-white/10 transition-all rounded-xs group"
+                        key={option.label}
+                        onClick={() => handleOptionClick(option.label)}
+                        className={`p-6 text-left border rounded-lg transition-all duration-300 hover:scale-[1.02] ${
+                          answers[currentStep] === option.label ? 'border-[#C2A684] bg-[#2A2522]' : 'border-stone-800 hover:border-stone-600 bg-stone-900/50'
+                        }`}
                       >
-                        <span className="text-base font-medium text-white group-hover:text-[#C2A684] block mb-1">
-                          {opt.label}
-                        </span>
-                        <span className="text-xs text-white/60 font-light block">
-                          {opt.desc}
-                        </span>
+                        <div className="flex items-start space-x-4">
+                          <span className="text-3xl">{option.icon}</span>
+                          <div>
+                            <h4 className="text-lg font-medium text-white mb-1">{option.label}</h4>
+                            <p className="text-stone-400 text-sm">{option.desc}</p>
+                          </div>
+                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
-
-                <div className="flex justify-between items-center pt-8 border-t border-white/10 mt-8">
-                  {currentStep > 0 ? (
-                    <button
-                      onClick={() => setCurrentStep((prev) => prev - 1)}
-                      className="text-xs uppercase tracking-widest text-white/60 hover:text-white"
-                    >
-                      ← Back
-                    </button>
-                  ) : <div />}
-                  <span className="text-xs text-white/40 font-mono">
-                    Select an option to proceed
-                  </span>
-                </div>
               </motion.div>
             ) : (
-              /* RESULT SCREEN */
               <motion.div
-                key="result"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col justify-between h-full"
+                key="results"
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{ x: { type: "spring", stiffness: 300, damping: 30 } }}
+                className="w-full absolute inset-0 flex flex-col items-center overflow-y-auto pb-10"
               >
-                <div>
-                  <div className="flex items-center space-x-2 text-[#C2A684] mb-3">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="text-xs font-mono uppercase tracking-widest">
-                      YOUR PERFECT MATCH FOUND
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-                    <div className="md:col-span-5 h-56 rounded-xs overflow-hidden bg-black">
-                      <img
-                        src={recommendedMattress.image}
-                        alt={recommendedMattress.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    <div className="md:col-span-7">
-                      <span className="text-xs uppercase tracking-widest text-[#C2A684] font-medium block mb-1">
-                        {recommendedMattress.subcategory} • {recommendedMattress.firmness}
-                      </span>
-                      <h3 className="font-serif-luxury text-3xl text-white font-normal mb-3">
-                        {recommendedMattress.name}
-                      </h3>
-                      <p className="text-xs text-white/70 font-light leading-relaxed mb-6">
-                        {recommendedMattress.description}
-                      </p>
-
-                      <div className="flex items-baseline space-x-4 mb-6">
-                        <span className="text-3xl font-serif-luxury text-[#C2A684]">
-                          ₹{recommendedMattress.price.toLocaleString("en-IN")}
-                        </span>
-                        <span className="text-sm text-white/40 line-through">
-                          ₹{recommendedMattress.originalPrice.toLocaleString("en-IN")}
-                        </span>
+                <h3 className="text-3xl md:text-4xl font-serif text-[#C2A684] mb-8 text-center">Your Perfect Match</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl w-full">
+                  {recommendations.map((prod) => (
+                    <div key={prod.id} className="bg-stone-900 border border-stone-800 rounded-lg overflow-hidden group hover:border-[#C2A684] transition-colors duration-500">
+                      <div className="h-64 overflow-hidden relative">
+                        <img src={prod.image} alt={prod.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                        <div className="absolute top-4 right-4 bg-[#C2A684] text-[#1C1917] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">98% Match</div>
                       </div>
-
-                      <div className="flex items-center space-x-4">
-                        <button
-                          onClick={() => onAddToCart(recommendedMattress)}
-                          className="px-6 py-3 bg-[#C2A684] hover:bg-[#a88a68] text-white text-xs uppercase tracking-widest font-medium transition-colors flex items-center space-x-2"
-                        >
-                          <ShoppingBag className="w-4 h-4" />
-                          <span>Add Match to Cart</span>
-                        </button>
-                        <button
-                          onClick={() => onQuickView(recommendedMattress)}
-                          className="px-6 py-3 border border-white/20 hover:border-white text-white text-xs uppercase tracking-widest transition-colors"
-                        >
-                          Full Specs
-                        </button>
+                      <div className="p-8">
+                        <h4 className="text-2xl font-serif text-white mb-2">{prod.name}</h4>
+                        <p className="text-sm text-[#C2A684] mb-4 uppercase tracking-wider">{prod.firmness || 'Medium Firm'}</p>
+                        <p className="text-stone-300 mb-6 line-clamp-2">{prod.matchReason || 'Matches your profile.'}</p>
+                        <div className="flex justify-between items-center mb-6">
+                          <span className="text-xl font-medium text-white">₹{prod.price?.toLocaleString()}</span>
+                        </div>
+                        <div className="flex space-x-4">
+                          <button onClick={() => onAddToCart && onAddToCart(prod)} className="flex-1 bg-white text-[#1C1917] py-3 text-sm font-semibold uppercase tracking-wider hover:bg-[#C2A684] transition-colors">
+                            Add to Cart
+                          </button>
+                          <button onClick={() => onQuickView && onQuickView(prod)} className="flex-1 border border-stone-600 text-white py-3 text-sm font-semibold uppercase tracking-wider hover:border-white transition-colors">
+                            View Details
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-
-                <div className="pt-8 border-t border-white/10 mt-8 flex justify-end">
-                  <button
-                    onClick={handleReset}
-                    className="text-xs uppercase tracking-widest text-white/60 hover:text-[#C2A684] flex items-center space-x-1.5"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Retake Sleep Quiz</span>
-                  </button>
-                </div>
+                <button onClick={handleRetake} className="mt-12 text-stone-400 hover:text-white uppercase text-sm tracking-wider underline underline-offset-4 transition-colors">
+                  Retake Quiz
+                </button>
               </motion.div>
             )}
           </AnimatePresence>

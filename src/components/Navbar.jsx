@@ -1,167 +1,120 @@
-import React, { useState, useEffect } from "react";
-import { Search, ShoppingBag, Heart, User, Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from 'react';
+import { Menu, X, Search, Heart, ShoppingBag } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export function Navbar({
-  cartCount,
-  wishlistCount,
-  onOpenCart,
-  onOpenWishlist,
-  onOpenSearch,
-  onNavigateSection
-}) {
+export function Navbar({ cartCount = 0, wishlistCount = 0, onOpenCart, onOpenWishlist, onOpenSearch, onNavigateSection }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 40) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 60);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { label: "Mattresses", target: "mattresses" },
-    { label: "Beds", target: "beds" },
-    { label: "Furniture", target: "furniture" },
-    { label: "Pillows", target: "pillows" },
-    { label: "Bed & Bath", target: "bedding" },
-    { label: "Sleep Tech", target: "technology" },
-    { label: "Store Locator", target: "stores" }
-  ];
+  const navLinks = ['Mattresses', 'Beds', 'Furniture', 'Bedding', 'Collections', 'Our Story'];
+  
+  const textColor = scrolled ? 'text-gray-900' : 'text-white';
+  const navBg = scrolled ? 'bg-[#FBF9F5]/92 backdrop-blur-xl border-b border-black/8 py-4' : 'bg-transparent py-6';
 
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ${
-          scrolled
-            ? "glass-panel py-4 shadow-sm text-[#121212]"
-            : "bg-gradient-to-b from-black/40 via-black/20 to-transparent py-6 text-white"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-          {/* Left: Brand Logo */}
-          <button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="flex items-baseline space-x-2 text-left group"
-          >
-            <span className="font-serif-luxury text-2xl md:text-3xl tracking-[0.25em] uppercase font-light">
-              Duroflex
-            </span>
-            <span className="text-[9px] tracking-[0.3em] uppercase opacity-75 font-semibold text-[#C2A684]">
-              Studio
-            </span>
-          </button>
-
-          {/* Center: Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-8">
+      <nav className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${navBg}`}>
+        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+          
+          {/* Left: Nav links (Desktop) */}
+          <div className={`hidden lg:flex items-center space-x-8 ${textColor}`}>
             {navLinks.map((link) => (
-              <button
-                key={link.label}
-                onClick={() => onNavigateSection?.(link.target)}
-                className={`text-xs uppercase tracking-[0.2em] transition-colors relative py-1 hover:text-[#C2A684] ${
-                  scrolled ? "text-[#333]" : "text-white/90"
-                }`}
+              <div 
+                key={link} 
+                className="relative group cursor-pointer text-sm tracking-wide"
+                onClick={() => onNavigateSection?.(link)}
               >
-                {link.label}
-              </button>
+                <span>{link}</span>
+                <span className="absolute -bottom-1 left-0 w-full h-[1px] bg-[#D4AF37] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              </div>
             ))}
-          </nav>
+          </div>
 
-          {/* Right: Actions (Search, Account, Wishlist, Cart) */}
-          <div className="flex items-center space-x-5 md:space-x-7">
-            <button
-              onClick={onOpenSearch}
-              className="p-1 hover:text-[#C2A684] transition-colors"
-              aria-label="Search Catalog"
-            >
-              <Search className="w-5 h-5 stroke-[1.5]" />
+          {/* Center: Logo */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center">
+            <span className={`font-serif text-2xl tracking-[0.25em] ${textColor} cursor-pointer`}>
+              DUROFLEX
+            </span>
+          </div>
+
+          {/* Right: Actions */}
+          <div className={`hidden lg:flex items-center space-x-6 ${textColor}`}>
+            <button className={`px-5 py-2 text-xs tracking-widest uppercase border rounded-full transition-colors ${scrolled ? 'border-gray-900 hover:bg-gray-900 hover:text-white' : 'border-white hover:bg-white hover:text-black'}`}>
+              Find Your Mattress
             </button>
-
-            <button
-              onClick={onOpenWishlist}
-              className="p-1 hover:text-[#C2A684] transition-colors relative"
-              aria-label="Wishlist"
-            >
-              <Heart className="w-5 h-5 stroke-[1.5]" />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 bg-[#C2A684] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
-                  {wishlistCount}
-                </span>
-              )}
+            <button onClick={onOpenSearch} className="hover:text-[#D4AF37] transition-colors"><Search size={18} /></button>
+            <button onClick={onOpenWishlist} className="relative hover:text-[#D4AF37] transition-colors">
+              <Heart size={18} />
+              {wishlistCount > 0 && <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">{wishlistCount}</span>}
             </button>
-
-            <button
-              onClick={onOpenCart}
-              className="p-1 hover:text-[#C2A684] transition-colors relative"
-              aria-label="Shopping Cart"
-            >
-              <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 bg-[#C2A684] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-medium">
-                  {cartCount}
-                </span>
-              )}
+            <button onClick={onOpenCart} className="relative hover:text-[#D4AF37] transition-colors">
+              <ShoppingBag size={18} />
+              {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>}
             </button>
+          </div>
 
-            {/* Mobile Menu Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="lg:hidden p-1 hover:text-[#C2A684] transition-colors"
-              aria-label="Open Navigation Menu"
-            >
-              <Menu className="w-6 h-6 stroke-[1.5]" />
+          {/* Mobile hamburger */}
+          <div className={`lg:hidden flex items-center space-x-4 ${textColor}`}>
+             <button onClick={onOpenCart} className="relative">
+              <ShoppingBag size={20} />
+              {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-[#D4AF37] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center">{cartCount}</span>}
+            </button>
+            <button onClick={() => setMobileMenuOpen(true)}>
+              <Menu size={24} />
             </button>
           </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Mobile Animated Overlay Menu */}
+      {/* Mobile Full Screen Menu */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, x: "100%" }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: "100%" }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-50 glass-dark text-white flex flex-col justify-between p-8"
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-50 bg-[#0D0B09] text-white flex flex-col overflow-y-auto"
           >
-            <div className="flex items-center justify-between border-b border-white/10 pb-6">
-              <span className="font-serif-luxury text-2xl tracking-[0.2em]">DUROFLEX</span>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 hover:text-[#C2A684]"
-              >
-                <X className="w-6 h-6" />
+            <div className="flex justify-between items-center p-6 border-b border-white/10">
+              <span className="font-serif text-xl tracking-[0.2em]">DUROFLEX</span>
+              <button onClick={() => setMobileMenuOpen(false)} className="text-white hover:text-[#D4AF37] transition-colors">
+                <X size={28} />
               </button>
             </div>
-
-            <nav className="flex flex-col space-y-6 my-auto">
+            
+            <div className="flex-1 p-6 flex flex-col justify-center space-y-6">
               {navLinks.map((link, idx) => (
-                <motion.button
-                  key={link.label}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 + 0.1 }}
+                <motion.div 
+                  key={link}
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 + idx * 0.05, duration: 0.4 }}
+                  className="flex items-center space-x-4 cursor-pointer group"
                   onClick={() => {
+                    onNavigateSection?.(link);
                     setMobileMenuOpen(false);
-                    onNavigateSection?.(link.target);
                   }}
-                  className="text-left font-serif-luxury text-3xl tracking-wider text-white/90 hover:text-[#C2A684] transition-colors"
                 >
-                  {link.label}
-                </motion.button>
+                  <div className="w-12 h-12 rounded-full bg-white/10 group-hover:bg-[#D4AF37]/20 transition-colors flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    <img src={`https://images.unsplash.com/photo-1505693314120-0d443867891c?w=100&q=80`} alt={link} className="w-full h-full object-cover opacity-60 mix-blend-overlay group-hover:opacity-100" />
+                  </div>
+                  <span className="font-serif text-4xl group-hover:text-[#D4AF37] transition-colors">{link}</span>
+                </motion.div>
               ))}
-            </nav>
+            </div>
 
-            <div className="border-t border-white/10 pt-6 flex items-center justify-between text-xs tracking-widest text-white/60">
-              <span>DUROFLEX LUXURY STORE</span>
-              <span>© 2026</span>
+            <div className="p-6 flex justify-between items-center text-sm tracking-wider text-white/50 border-t border-white/10">
+              <span className="cursor-pointer hover:text-white transition-colors">INSTAGRAM</span>
+              <span className="cursor-pointer hover:text-white transition-colors">PINTEREST</span>
+              <span className="cursor-pointer hover:text-white transition-colors">TWITTER</span>
             </div>
           </motion.div>
         )}

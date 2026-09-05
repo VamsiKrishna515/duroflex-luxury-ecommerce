@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { IntroScreen } from "./components/IntroScreen";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
@@ -17,6 +17,7 @@ import { MattressFinder } from "./components/MattressFinder";
 import { StoreLocator } from "./components/StoreLocator";
 import { FAQSection } from "./components/FAQSection";
 import { NighttimeHero } from "./components/NighttimeHero";
+import { HorizontalScrollCollection } from "./components/HorizontalScrollCollection";
 import { Footer } from "./components/Footer";
 import { CartDrawer } from "./components/CartDrawer";
 import { WishlistDrawer } from "./components/WishlistDrawer";
@@ -129,7 +130,7 @@ export default function App() {
       <CustomCursor />
 
       {/* 1. Cinematic Intro Screen */}
-      <IntroScreen />
+      <IntroScreen onComplete={() => {}} />
 
       {/* 2. Glassmorphic Navigation Bar */}
       <Navbar
@@ -163,6 +164,9 @@ export default function App() {
 
         {/* 6 & 7. Sticky Camera Category Story */}
         <CategoryStory onSelectCategory={(catId) => scrollToSection(catId)} />
+
+        {/* 7b. Horizontal Comfort Scroll Collection */}
+        <HorizontalScrollCollection />
 
         {/* 8 & 9. Editorial Mattress Collection Showcase */}
         <MattressCollection
@@ -248,6 +252,7 @@ export default function App() {
         isOpen={searchOpen}
         onClose={() => setSearchOpen(false)}
         onQuickView={(product) => setSelectedQuickView(product)}
+        onNavigateSection={scrollToSection}
       />
 
       <ProductDetailModal
